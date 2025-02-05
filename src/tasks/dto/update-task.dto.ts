@@ -1,5 +1,5 @@
 import { TaskStatus } from "../task.model";
 
-export class updateTaskByIdDto {
+export class UpdateTaskByIdDto {
 	status: TaskStatus;
 }

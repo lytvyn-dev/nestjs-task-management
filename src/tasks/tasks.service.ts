@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Task, TaskStatus } from './task.model';
 import { v4 as uuid } from 'uuid';
-import { createTaskDto } from './dto/create-task.dto';
-import { updateTaskByIdDto } from './dto/update-task.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskByIdDto } from './dto/update-task.dto';
+import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 
 @Injectable()
 export class TasksService {
@@ -31,7 +32,7 @@ export class TasksService {
 		return this.tasks;
 	}
 
-	createTask(createTaskDto: createTaskDto): Task {
+	createTask(createTaskDto: CreateTaskDto): Task {
 		const { title, description } = createTaskDto;
 		const task = {
 			id: uuid(),
@@ -53,7 +54,7 @@ export class TasksService {
 		this.tasks = this.tasks.filter(task => task.id !== id);
 	}
 
-	updateTaskById(id: string, updateTaskByIdDto: updateTaskByIdDto): Task {
+	updateTaskById(id: string, updateTaskByIdDto: UpdateTaskByIdDto): Task {
 		const { status } = updateTaskByIdDto;
 		const taskToUpdate = this.getTaskById(id);
 		if (!taskToUpdate) throw new Error('No task with provided id was found!')
@@ -61,5 +62,20 @@ export class TasksService {
 
 		this.tasks = [...this.tasks, taskToUpdate];
 		return taskToUpdate;
+	}
+
+	getFilteredTasks(queryParams: GetTasksFilterDto): Task[] {
+		const { status, search } = queryParams;
+		let filteredTasks: Task[] = this.getAllTasks();
+
+		if (status) {
+			filteredTasks = filteredTasks.filter(task => task.status === status);
+		}
+
+		if (search) {
+			filteredTasks = filteredTasks.filter(task => task.title.startsWith(search));
+		}
+
+		return filteredTasks;
 	}
 }
